@@ -1,0 +1,3 @@
+export default function InventoryPage() {
+  // ... rest of code here ...
+}

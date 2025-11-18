@@ -1,0 +1,3 @@
+export default function ExpensesPage() {}
+
+// ... rest of code here ...

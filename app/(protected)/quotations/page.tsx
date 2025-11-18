@@ -1,0 +1,3 @@
+export default function QuotationsPage() {
+  // ... rest of code here ...
+}

@@ -1,0 +1,3 @@
+export default function CashPage() {
+  // ... rest of code here ...
+}

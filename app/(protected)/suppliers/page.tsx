@@ -1,0 +1,3 @@
+export default function SuppliersPage() {}
+
+// ... rest of code here ...

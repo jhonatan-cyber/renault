@@ -1,0 +1,292 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USUARIOS
+// ============================================
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   // "admin" | "vendedor" | "compras" | "supervisor" | "invitado"
+  status    String   @default("active") // "active" | "inactive"
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  salesAsSeller       Sale[]         @relation("SellerSales")
+  purchasesAsBuyer    Purchase[]     @relation("BuyerPurchases")
+  quotationsAsSeller  Quotation[]    @relation("SellerQuotations")
+  commissions         Commission[]
+  expenses            Expense[]
+  cashRecords         CashRecord[]
+
+  @@map("users")
+}
+
+// ============================================
+// CLIENTES
+// ============================================
+model Client {
+  id             Int      @id @default(autoincrement())
+  name           String
+  phone          String
+  email          String?
+  nit            String?
+  address        String?
+  totalPurchases Float    @default(0)
+  createdAt      DateTime @default(now())
+
+  // Relaciones
+  sales       Sale[]
+  quotations  Quotation[]
+
+  @@map("clients")
+}
+
+// ============================================
+// PROVEEDORES
+// ============================================
+model Supplier {
+  id             Int      @id @default(autoincrement())
+  name           String
+  company        String?
+  phone          String
+  email          String?
+  address        String?
+  totalPurchases Float    @default(0)
+  createdAt      DateTime @default(now())
+
+  // Relaciones
+  products   Product[]
+  purchases  Purchase[]
+
+  @@map("suppliers")
+}
+
+// ============================================
+// CATEGORÍAS
+// ============================================
+model Category {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  color String
+  icon  String?
+  type  String  @default("product") // "product" | "expense"
+
+  // Relaciones
+  products Product[]
+
+  @@map("categories")
+}
+
+// ============================================
+// PRODUCTOS / INVENTARIO
+// ============================================
+model Product {
+  id            Int      @id @default(autoincrement())
+  code          String   @unique
+  name          String
+  categoryId    Int
+  purchasePrice Float
+  salePrice     Float
+  stock         Int      @default(0)
+  minimumStock  Int      @default(0)
+  unit          String   @default("unidad")
+  supplierId    Int
+  createdAt     DateTime @default(now())
+
+  // Relaciones
+  category         Category        @relation(fields: [categoryId], references: [id])
+  supplier         Supplier        @relation(fields: [supplierId], references: [id])
+  saleItems        SaleItem[]
+  purchaseItems    PurchaseItem[]
+  quotationItems   QuotationItem[]
+
+  @@map("products")
+}
+
+// ============================================
+// VENTAS
+// ============================================
+model Sale {
+  id            Int      @id @default(autoincrement())
+  date          DateTime
+  clientId      Int
+  sellerUserId  Int
+  subtotal      Float
+  tax           Float    @default(0)
+  discount      Float    @default(0)
+  total         Float
+  paymentMethod String   // "efectivo" | "transferencia" | "crédito" | "qr"
+  status        String   @default("completada") // "completada" | "pendiente" | "cancelada"
+  createdAt     DateTime @default(now())
+
+  // Relaciones
+  client        Client        @relation(fields: [clientId], references: [id])
+  seller        User          @relation("SellerSales", fields: [sellerUserId], references: [id])
+  items         SaleItem[]
+  commissions   Commission[]
+  convertedFrom Quotation?    @relation("ConvertedQuotation")
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id        Int     @id @default(autoincrement())
+  saleId    Int
+  productId Int
+  quantity  Int
+  price     Float
+  subtotal  Float
+
+  // Relaciones
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("sale_items")
+}
+
+// ============================================
+// COMPRAS
+// ============================================
+model Purchase {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  supplierId  Int
+  buyerUserId Int
+  subtotal    Float
+  tax         Float    @default(0)
+  total       Float
+  status      String   @default("pendiente") // "pendiente" | "recibida" | "cancelada"
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  supplier Supplier      @relation(fields: [supplierId], references: [id])
+  buyer    User          @relation("BuyerPurchases", fields: [buyerUserId], references: [id])
+  items    PurchaseItem[]
+
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id         Int     @id @default(autoincrement())
+  purchaseId Int
+  productId  Int
+  quantity   Int
+  price      Float
+
+  // Relaciones
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id])
+
+  @@map("purchase_items")
+}
+
+// ============================================
+// COTIZACIONES
+// ============================================
+model Quotation {
+  id                Int       @id @default(autoincrement())
+  date              DateTime
+  clientId          Int
+  sellerUserId      Int
+  subtotal          Float
+  tax               Float      @default(0)
+  discount          Float      @default(0)
+  total             Float
+  validUntil        DateTime
+  status            String     @default("activa") // "activa" | "vencida" | "convertida"
+  convertedToSaleId Int?       @unique
+  createdAt         DateTime   @default(now())
+
+  // Relaciones
+  client            Client     @relation(fields: [clientId], references: [id])
+  seller            User       @relation("SellerQuotations", fields: [sellerUserId], references: [id])
+  items             QuotationItem[]
+  convertedToSale   Sale?      @relation("ConvertedQuotation", fields: [convertedToSaleId], references: [id])
+
+  @@map("quotations")
+}
+
+model QuotationItem {
+  id          Int     @id @default(autoincrement())
+  quotationId Int
+  productId   Int
+  quantity    Int
+  price       Float
+  subtotal    Float
+
+  // Relaciones
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  product  Product   @relation(fields: [productId], references: [id])
+
+  @@map("quotation_items")
+}
+
+// ============================================
+// COMISIONES
+// ============================================
+model Commission {
+  id         Int      @id @default(autoincrement())
+  sellerId   Int
+  saleId     Int
+  amount     Float
+  percentage Float
+  date       DateTime
+  status     String   @default("pendiente") // "completada" | "pendiente"
+
+  // Relaciones
+  seller User  @relation(fields: [sellerId], references: [id])
+  sale   Sale  @relation(fields: [saleId], references: [id])
+
+  @@map("commissions")
+}
+
+// ============================================
+// GASTOS
+// ============================================
+model Expense {
+  id                Int      @id @default(autoincrement())
+  date              DateTime
+  description       String
+  amount            Float
+  category          String
+  responsibleUserId Int
+  notes             String?
+  createdAt         DateTime @default(now())
+
+  // Relaciones
+  responsible User @relation(fields: [responsibleUserId], references: [id])
+
+  @@map("expenses")
+}
+
+// ============================================
+// CAJA DIARIA
+// ============================================
+model CashRecord {
+  id             Int      @id @default(autoincrement())
+  date           DateTime
+  openingBalance Float
+  cashIncome     Float    @default(0)
+  cashExpenses   Float    @default(0)
+  closingBalance Float
+  notes          String?
+  userId         Int
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("cash_records")
+}
