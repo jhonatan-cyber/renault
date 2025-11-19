@@ -1,15 +1,60 @@
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
+import { ProductSchema } from "@/lib/validations"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const products = await prisma.product.findMany({
-      include: {
-        category: true,
-        supplier: true,
-      },
-      orderBy: { createdAt: "desc" },
-    })
+    const { searchParams } = new URL(request.url)
+
+    // Parámetros de paginación
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "50")
+    const skip = (page - 1) * limit
+
+    // Parámetros de búsqueda y filtros
+    const search = searchParams.get("search") || ""
+    const categoryId = searchParams.get("categoryId")
+    const supplierId = searchParams.get("supplierId")
+    const lowStock = searchParams.get("lowStock") === "true"
+
+    // Construir filtros
+    const where: any = {}
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { code: { contains: search, mode: "insensitive" } },
+      ]
+    }
+
+    if (categoryId) {
+      where.categoryId = parseInt(categoryId)
+    }
+
+    if (supplierId) {
+      where.supplierId = parseInt(supplierId)
+    }
+
+    if (lowStock) {
+      where.stock = {
+        lte: prisma.product.fields.minimumStock,
+      }
+    }
+
+    // Obtener productos
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: {
+          category: true,
+          supplier: true,
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.product.count({ where }),
+    ])
 
     // Transformar para mantener compatibilidad con el formato anterior
     const transformed = products.map((product) => ({
@@ -28,7 +73,15 @@ export async function GET() {
       createdAt: product.createdAt.toISOString(),
     }))
 
-    return NextResponse.json(transformed)
+    return NextResponse.json({
+      data: transformed,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    })
   } catch (error) {
     console.error("Error fetching products:", error)
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 })
@@ -38,26 +91,21 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { code, name, categoryId, purchasePrice, salePrice, stock, minimumStock, unit, supplierId } = body
 
-    if (!code || !name || !categoryId || !supplierId) {
-      return NextResponse.json(
-        { error: "Code, name, categoryId, and supplierId are required" },
-        { status: 400 },
-      )
-    }
+    // Validar con Zod
+    const validated = ProductSchema.parse(body)
 
     const product = await prisma.product.create({
       data: {
-        code,
-        name,
-        categoryId: parseInt(categoryId),
-        purchasePrice: parseFloat(purchasePrice),
-        salePrice: parseFloat(salePrice),
-        stock: parseInt(stock) || 0,
-        minimumStock: parseInt(minimumStock) || 0,
-        unit: unit || "unidad",
-        supplierId: parseInt(supplierId),
+        code: validated.code,
+        name: validated.name,
+        categoryId: validated.categoryId,
+        purchasePrice: validated.purchasePrice,
+        salePrice: validated.salePrice,
+        stock: validated.stock,
+        minimumStock: validated.minimumStock,
+        unit: validated.unit,
+        supplierId: validated.supplierId,
       },
       include: {
         category: true,
@@ -68,6 +116,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(product, { status: 201 })
   } catch (error) {
     console.error("Error creating product:", error)
+
+    if (error instanceof Error && error.name === "ZodError") {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: error },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json({ error: "Failed to create product" }, { status: 500 })
   }
 }

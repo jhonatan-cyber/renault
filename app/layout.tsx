@@ -4,13 +4,14 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
+import { Toaster } from "sonner"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
+  title: "ERP Renault",
+  description: "Sistema de gestión empresarial",
   generator: "v0.app",
 }
 
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="es">
       <body className={`font-sans antialiased`}>
         <AuthProvider>{children}</AuthProvider>
+        <Toaster position="top-right" richColors />
         <Analytics />
       </body>
     </html>
