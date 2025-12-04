@@ -108,8 +108,8 @@ export function Sidebar() {
       >
         {/* Header - Fixed */}
         <div className="flex-shrink-0 p-6 border-b border-sidebar-border">
-          <h1 className="text-2xl font-bold text-sidebar-foreground">ERP System</h1>
-          <p className="text-xs text-sidebar-foreground/50 mt-1">Gestión Empresarial</p>
+          <h1 className="text-2xl font-bold text-sidebar-foreground">Renault</h1>
+          <p className="text-xs text-sidebar-foreground/50 mt-1">Repuestos Automotrices</p>
         </div>
 
         {/* Navigation - Scrollable */}

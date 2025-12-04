@@ -10,8 +10,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ERP Renault",
-  description: "Sistema de gestión empresarial",
+  title: "Renault - Sistema de Gestión",
+  description: "Sistema de gestión de repuestos automotrices Renault",
   generator: "v0.app",
 }
 

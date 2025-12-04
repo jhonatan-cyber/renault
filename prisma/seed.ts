@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Iniciando seed de la base de datos - Sistema de Repuestos Automotrices...");
+  console.log("🌱 Iniciando seed de la base de datos - Renault Repuestos Automotrices...");
 
   // ============================================
   // LIMPIAR DATOS EXISTENTES
@@ -935,7 +935,7 @@ async function main() {
 
   console.log("✅ Seed completado exitosamente!");
   console.log(`
-📊 Resumen del Sistema de Repuestos Automotrices:
+📊 Resumen - Renault Repuestos Automotrices:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👥 Usuarios:          ${await prisma.user.count()}
 📦 Categorías:        ${await prisma.category.count()} (12 productos + 6 gastos)

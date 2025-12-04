@@ -37,8 +37,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <div className="p-8">
-          <h1 className="text-2xl font-bold mb-2">ERP System</h1>
-          <p className="text-sm text-muted-foreground mb-6">Inicia sesión en tu cuenta</p>
+          <h1 className="text-2xl font-bold mb-2">Renault</h1>
+          <p className="text-sm text-muted-foreground mb-6">Sistema de Repuestos Automotrices</p>
 
           {error && (
             <div className="mb-4 flex gap-3 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
@@ -52,7 +52,7 @@ export default function LoginPage() {
               <label className="block text-sm font-medium mb-1">Correo Electrónico</label>
               <Input
                 type="email"
-                placeholder="admin@erp.com"
+                placeholder="admin@repuestos.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -85,16 +85,16 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 pt-6 border-t">
-            <p className="text-xs text-muted-foreground mb-3">Demo Credentials:</p>
+            <p className="text-xs text-muted-foreground mb-3">Credenciales de prueba:</p>
             <div className="space-y-1 text-xs">
               <p>
-                <span className="font-semibold">Admin:</span> admin@erp.com / admin123
+                <span className="font-semibold">Admin:</span> admin@repuestos.com / admin123
               </p>
               <p>
-                <span className="font-semibold">Vendedor:</span> juan@erp.com / pass123
+                <span className="font-semibold">Vendedor:</span> carlos.rodriguez@repuestos.com / vendedor123
               </p>
               <p>
-                <span className="font-semibold">Compras:</span> maria@erp.com / pass123
+                <span className="font-semibold">Compras:</span> luis.castro@repuestos.com / compras123
               </p>
             </div>
           </div>
