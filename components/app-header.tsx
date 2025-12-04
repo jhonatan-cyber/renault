@@ -13,12 +13,13 @@ const routeTitles: Record<string, string> = {
   "/quotations": "Cotizaciones",
   "/purchases": "Compras",
   "/sales": "Ventas",
-  "/commissions": "Comisiones",
   "/expenses": "Gastos",
   "/reports": "Reportes",
   "/cash": "Caja Diaria",
-  "/users": "Usuarios",
   "/categories": "Categorías",
+  "/users": "Usuarios",
+  "/roles": "Roles y Permisos",
+  "/permissions": "Permisos del Sistema",
 }
 
 export function AppHeader() {

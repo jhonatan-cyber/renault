@@ -39,18 +39,6 @@ export async function GET() {
             take: 10,
         })
 
-        // Comisiones pendientes
-        const pendingCommissions = await prisma.commission.findMany({
-            where: {
-                status: "pendiente",
-            },
-        })
-
-        const pendingCommissionsTotal = pendingCommissions.reduce(
-            (sum, commission) => sum + commission.amount,
-            0
-        )
-
         // Ventas recientes (últimas 10)
         const recentSales = await prisma.sale.findMany({
             include: {
@@ -101,8 +89,6 @@ export async function GET() {
             todaySalesCount: todaySales.length,
             totalProducts,
             lowStockCount: lowStockProducts.length,
-            pendingCommissionsTotal,
-            pendingCommissionsCount: pendingCommissions.length,
             recentSales: transformedRecentSales,
             lowStockProducts: transformedLowStock,
         })

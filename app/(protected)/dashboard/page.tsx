@@ -15,8 +15,6 @@ interface DashboardData {
     todaySalesCount: number
     totalProducts: number
     lowStockCount: number
-    pendingCommissionsTotal: number
-    pendingCommissionsCount: number
     recentSales: any[]
     lowStockProducts: any[]
 }
@@ -105,8 +103,6 @@ export default function Dashboard() {
                 todaySalesCount={dashboardData.todaySalesCount}
                 totalProducts={dashboardData.totalProducts}
                 lowStockCount={dashboardData.lowStockCount}
-                pendingCommissionsTotal={dashboardData.pendingCommissionsTotal}
-                pendingCommissionsCount={dashboardData.pendingCommissionsCount}
             />
 
             {/* Charts */}

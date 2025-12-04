@@ -9,8 +9,6 @@ interface DashboardStatsProps {
     todaySalesCount: number
     totalProducts: number
     lowStockCount: number
-    pendingCommissionsTotal: number
-    pendingCommissionsCount: number
 }
 
 export function DashboardStats({
@@ -18,8 +16,6 @@ export function DashboardStats({
     todaySalesCount,
     totalProducts,
     lowStockCount,
-    pendingCommissionsTotal,
-    pendingCommissionsCount,
 }: DashboardStatsProps) {
     const stats = [
         {
@@ -46,18 +42,10 @@ export function DashboardStats({
             color: lowStockCount > 0 ? "text-orange-600" : "text-gray-400",
             bgColor: lowStockCount > 0 ? "bg-orange-50" : "bg-gray-50",
         },
-        {
-            title: "Comisiones Pendientes",
-            value: formatCurrency(pendingCommissionsTotal),
-            subtitle: `${pendingCommissionsCount} ${pendingCommissionsCount === 1 ? 'comisión' : 'comisiones'}`,
-            icon: TrendingUp,
-            color: "text-purple-600",
-            bgColor: "bg-purple-50",
-        },
     ]
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {stats.map((stat, index) => {
                 const Icon = stat.icon
                 return (
